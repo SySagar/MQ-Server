@@ -5,8 +5,8 @@ import getBasicMessage from '../controllers/getAllMessagesController.js';
 
 const router = express.Router()
 
-router.get("/",getBasicMessage );
-router.post("/publish",publishMessage );
-router.get("/subscribe",subscribeMessage );
+router.get("/mq",getBasicMessage );
+router.post("/mq/publish",publishMessage );
+router.get("/mq/subscribe",subscribeMessage );
 
 export default router;
