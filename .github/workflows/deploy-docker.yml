@@ -1,0 +1,51 @@
+name: MQ Server Deploy
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.github/**'
+      - 'docs/**'
+env:
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_DEFAULT_REGION: 'ap-south-1'
+    CLOUDAMQP_URL: ${{ secrets.CLOUDAMQP_URL }}
+    AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+    ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+jobs: 
+    deploy-app:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Login to AWS ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+          env: 
+            AWS_REGION: ${{ env.AWS_DEFAULT_REGION }}
+            AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        - name: Create ENV file
+          run: | 
+            touch .env
+            echo "CLOUDAMQP_URL=${{ env.CLOUDAMQP_URL }}" >> .env
+        - name: Build, tag, and push image to Amazon ECR
+          id: push-imaeg
+          env: 
+            ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com
+            ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        - name: Push into ECR
+          env: 
+            ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com
+            ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            
