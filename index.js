@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 4001;
 
 const corsOptions = {
   origin: '*',
-  
+  credentials:true
 }
 
 app.use(cors(corsOptions));
@@ -16,9 +16,6 @@ dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(queueRoutes);
-
-
-
 
 // app.use((req,res,next)=>{
 //   res.setHeader('Access-Control-Allow-Origin', '*');

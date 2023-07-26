@@ -3,13 +3,12 @@ import { connect } from "amqplib";
 const publishMessage = async (req,res) => {
   try {
     const companyName = req.body.companyName;
-    const queueName = req.body.queueName;
     const queueMessage = req.body.queueMessage;
 
     const connection = await connect(process.env.CLOUDAMQP_URL);
     const channel = await connection.createChannel();
 
-    const uniqueQueueName = companyName + "-" + queueName;
+    const uniqueQueueName = companyName;
 
     // console.log(msg)
     // connect to 'test-queue', create one if doesnot exist already

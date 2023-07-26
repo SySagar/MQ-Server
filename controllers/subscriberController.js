@@ -4,7 +4,7 @@ import { connect } from "amqplib";
 
 const subscribeMessage = async (req,res) => {
     try {
-      const notificationQueue = req.body.notificationQueueID || 'test';
+      const notificationQueue = req.body.notificationQueueID;
       const connection = await connect(process.env.CLOUDAMQP_URL);
       const channel = await connection.createChannel();
 
