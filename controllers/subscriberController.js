@@ -15,15 +15,20 @@ const subscribeMessage = async (req,res) => {
       
       var notificationMessage;
       var retrievedMessage;
-      // console.log("queue",queue)
+      var messages = [];
+      // console.log("queue",channel)
       await channel.consume(
         notificationQueue,
         (message) => {
+          // console.log("message",message)
           if (message) {
-            console.log("message",message.content.toString())
-              retrievedMessage = JSON.parse(message.content.toString());
-              channel.ack(message);
-              res.send(retrievedMessage)
+
+            retrievedMessage = JSON.parse(message.content.toString());
+            messages.push(retrievedMessage)
+            console.log("retrievedMessage",retrievedMessage)
+              channel.ack(message); 
+              // res.send(retrievedMessage)
+             
           }
 
           // if(retrievedMessage.companyName === companyName){
@@ -34,8 +39,11 @@ const subscribeMessage = async (req,res) => {
           //   notificationMessage = "No new notification";
           // }
         });
-        if(retrievedMessage===undefined)
+        if(messages.length==0)
         res.send("no new notification");
+        else
+        res.send(messages);
+
   
       // console.log(" [*] Waiting for messages. To exit press CTRL+C");
     } catch (err) {

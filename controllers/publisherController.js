@@ -17,11 +17,21 @@ const publishMessage = async (req,res) => {
 
     // send data to queue
     const routingKey = uniqueQueueName;
-    await channel.sendToQueue(routingKey, Buffer.from(JSON.stringify(queueMessage)));
-
+    const sendingMessage =async () => {
+      channel.sendToQueue(routingKey, Buffer.from(JSON.stringify(queueMessage)), { persistent: true });
+    }
     // close the channel and connections
-    await channel.close();
-    await connection.close();
+
+    sendingMessage()
+
+      // await channel.close();
+      // await connection.close();
+      setTimeout(async function () {
+        await channel.connection.close();
+      console.log("Message Sent");
+        // callback(null, { message: 'queued' });
+      }, 10000);
+
 
     res.send("Message Sent");
   } catch (error) {

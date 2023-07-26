@@ -5,16 +5,26 @@ import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 4001;
 
+const corsOptions = {
+  origin: '*',
+  
+}
+
+app.use(cors(corsOptions));
+
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(queueRoutes);
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+
+
+
+// app.use((req,res,next)=>{
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+//   next();
+// })
 
 // app.get("/send-msg", (req, res) => {
 //     const data = {
