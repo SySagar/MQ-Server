@@ -3,7 +3,7 @@ import queueRoutes from "./routes/messageQueue.js";
 import dotenv from "dotenv";
 import cors from "cors";
 const app = express();
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4002;
 
 const corsOptions = {
   origin: '*',

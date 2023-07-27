@@ -8,16 +8,13 @@ const subscribeMessage = async (req,res) => {
       const connection = await connect(process.env.CLOUDAMQP_URL);
       const channel = await connection.createChannel();
 
-      process.once("SIGINT", async () => {
-        await channel.close();
-        await connection.close();
-      });
-      
       var notificationMessage;
       var retrievedMessage;
       var messages = [];
       // console.log("queue",channel)
-      const consumption = async () => {
+
+      await channel.assertQueue(notificationQueue,  { durable: true, autoDelete: true });
+
 
         await channel.consume(
           notificationQueue,
@@ -28,6 +25,7 @@ const subscribeMessage = async (req,res) => {
             retrievedMessage = JSON.parse(message.content.toString());
             messages.push(retrievedMessage)
             console.log("retrievedMessage",retrievedMessage)
+            
             channel.ack(message); 
             // res.send(retrievedMessage)
             
@@ -41,20 +39,21 @@ const subscribeMessage = async (req,res) => {
               //   notificationMessage = "No new notification";
               // }
             });
-          }
+          
 
-          consumption().then(() => {
-
-            if(messages.length==0)
-            res.send("no new notification");
-            else
-            res.send(messages);
+            // await channel.deleteQueue(notificationQueue);
             setTimeout(async function () {
+              
               await channel.close();
             await connection.close();
             console.log("Message Sent");
-            }, 1000);
-          })
+            }, 7000);
+          
+
+          if(messages.length==0)
+          res.send("no new notification");
+          else
+          res.send(messages);
 
   
       // console.log(" [*] Waiting for messages. To exit press CTRL+C");

@@ -12,32 +12,25 @@ const publishMessage = async (req,res) => {
 
     // console.log(msg)
     // connect to 'test-queue', create one if doesnot exist already
-    await channel.assertQueue(uniqueQueueName, { durable: true });
+    await channel.assertQueue(uniqueQueueName,  { durable: true, autoDelete: true });
 
-    // send data to queue
-    const routingKey = uniqueQueueName;
-    const sendingMessage =async () => {
-       channel.sendToQueue(routingKey, Buffer.from(JSON.stringify(queueMessage)));
-    }
-    // close the channel and connections
+  // Send data to the queue
+  const routingKey = uniqueQueueName;
+  await channel.sendToQueue(routingKey, Buffer.from(JSON.stringify(queueMessage)),{ persistent: true });
+  console.log("Message Sent");
 
-    sendingMessage().then(() => {
-
-
-      res.send("Message Sent");
-       setTimeout(async function () {
-        await channel.close();
-      await connection.close();
-      console.log("Message Sent");
-      }, 1000);
-
-    })
-     
+  // Close the channel and connections
+ 
+  setTimeout(async function () {
+    await channel.close();
+    await connection.close();
+  }, 5000);
 
 
-  } catch (error) {
-    console.log(error);
-  }
+  res.send("Message Sent");
+} catch (error) {
+  console.log(error);
+}
 };
 
 export default publishMessage;
