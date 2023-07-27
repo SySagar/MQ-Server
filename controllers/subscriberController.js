@@ -17,32 +17,44 @@ const subscribeMessage = async (req,res) => {
       var retrievedMessage;
       var messages = [];
       // console.log("queue",channel)
-      await channel.consume(
-        notificationQueue,
-        (message) => {
+      const consumption = async () => {
+
+        await channel.consume(
+          notificationQueue,
+          (message) => {
           // console.log("message",message)
           if (message) {
 
             retrievedMessage = JSON.parse(message.content.toString());
             messages.push(retrievedMessage)
             console.log("retrievedMessage",retrievedMessage)
-              channel.ack(message); 
-              // res.send(retrievedMessage)
-             
+            channel.ack(message); 
+            // res.send(retrievedMessage)
+            
+          }
+          
+          // if(retrievedMessage.companyName === companyName){
+            //   notificationMessage = retrievedMessage.queueMessage;
+            // }
+            // else
+            // {
+              //   notificationMessage = "No new notification";
+              // }
+            });
           }
 
-          // if(retrievedMessage.companyName === companyName){
-          //   notificationMessage = retrievedMessage.queueMessage;
-          // }
-          // else
-          // {
-          //   notificationMessage = "No new notification";
-          // }
-        });
-        if(messages.length==0)
-        res.send("no new notification");
-        else
-        res.send(messages);
+          consumption().then(() => {
+
+            if(messages.length==0)
+            res.send("no new notification");
+            else
+            res.send(messages);
+            setTimeout(async function () {
+              await channel.close();
+            await connection.close();
+            console.log("Message Sent");
+            }, 1000);
+          })
 
   
       // console.log(" [*] Waiting for messages. To exit press CTRL+C");
